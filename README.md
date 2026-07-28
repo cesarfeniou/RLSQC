@@ -45,4 +45,4 @@ Same as `NTC_general.py` but for the **transcorrelated Hamiltonian**
 ---
 
 ### Note:
-Larger grids were taken for more accurate results and the corresponding Hamiltonian is diagonalized using a Davidson solver (check part 5 of the article).
+Larger grids were taken for more accurate results and the corresponding Hamiltonian were diagonalized using a Davidson solver (check part 5 of the article).

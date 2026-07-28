@@ -5,7 +5,7 @@ import scipy.sparse
 
 class GridSetup:
 
-    def __init__(self, Nr, Nang, alpha=[(0,0,0)], m=1, rmin=1e-4, rmax=20) -> None:
+    def __init__(self, Nr, Nang, alpha=[(0,0,0)], m=3, rmin=1e-2, rmax=20) -> None:
         
         self.alpha = alpha
         u = np.linspace((1-np.exp(-1))**(1/m),(1-np.exp(-rmin))**(1/m),Nr)[::-1]
@@ -19,6 +19,7 @@ class GridSetup:
         grid_points = self.r[:, np.newaxis, np.newaxis] * unit_vecs[np.newaxis, :, :]
         grid_points_flat = grid_points.reshape(-1, 3)
         x0,y0,z0 = grid_points_flat[:, 0], grid_points_flat[:, 1], grid_points_flat[:, 2]
+        self.x,self.y,self.z = x0,y0,z0
         """ UNCOMMENT FOR H2+
         mask = x0<1.27/2
         self.x,self.y,self.z = x0[mask],y0[mask],z0[mask]"""

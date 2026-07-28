@@ -134,7 +134,8 @@ def voronoi_Dee(points):
             v2[idx2] += h2 * area2
     L1 = sparse.csr_matrix((data_L1, (rows_L1, cols_L1)), shape=(N**2, N**2))
     L2 = sparse.csr_matrix((data_L2, (rows_L2, cols_L2)), shape=(N**2, N**2))
-    Dee = sparse.diags(3 / v1) @ L1 - sparse.diags(3 / v2) @ L2
+    Dee = sparse.diags(np.divide(3.0, v1, out=np.zeros_like(v1, dtype=float), where=v1 != 0)) @ L1 \
+    - sparse.diags(np.divide(3.0, v2, out=np.zeros_like(v2, dtype=float), where=v2 != 0)) @ L2
     Dee.data[np.isinf(Dee.data)] = 0
     Dee.data[np.isnan(Dee.data)] = 0
     return Dee

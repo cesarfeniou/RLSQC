@@ -5,6 +5,8 @@ from scipy.spatial import distance
 from matplotlib import pyplot as plt
 from voronoi import voronoi_L, voronoi_D, voronoi_Dee  # type: ignore
 from grid_generator import GridSetup  # type: ignore
+from export_data_davidson import *
+from get_correlated_psi import *
 
 def dg1(Z,mu,r):
     return -(Z-sp.erf(mu*r))
@@ -28,8 +30,8 @@ def r12(grid):
 
 def laplacian(Z, mu, grid):
     nherm = 0
-    for k in range(len(alpha)):
-        nherm += 2*diag_op(dg1,Z,mu,grid,k)@voronoi_D(grid.positions,alpha[k]) 
+    for k in range(len(grid.alpha)):
+        nherm += 2 * diag_op(dg1, Z, mu, grid, k) @ voronoi_D(grid.positions, grid.alpha[k])
     return voronoi_L(grid.positions) + nherm
         
 def ham1e(Z,mu,grid):
@@ -51,8 +53,8 @@ def nhermee(mu,grid):
     d = r12(grid)
     return -sparse.diags(dg1(1,mu,d))@voronoi_Dee(grid.positions)
 
-def hamiltonian(Z,m,grid, N):
-    H = ham1e(Z,m,grid)
+def hamiltonian(Z, mu, grid, N):
+    H = ham1e(Z, mu, grid)
     if N == 1:
         return sparse.csr_matrix(H)
     else:
@@ -64,7 +66,7 @@ def hamiltonian(Z,m,grid, N):
             for op in ops[1:]:
                 H_local = sparse.kron(H_local, op)
             Ht += H_local
-        return sparse.csr_matrix(Ht) + Vee(m,grid) + nhermee(mu,grid)
+        return sparse.csr_matrix(Ht) + Vee(mu, grid) + nhermee(mu, grid)
                          
 #_________________________________________________Parameters and grid_________________________________
 Z=1    #CHANGE ATOMIC NUMBER
@@ -99,3 +101,45 @@ positions = np.stack([X, Y, Z], axis=-1)
 R = np.sqrt(X**2 + Y**2 + Z**2)
 plt.plot(X, eigenvectors[:,0].real, linewidth=0, marker='o', markersize=1)
 plt.show()
+
+#_____________________________________________________Export for Davidson________________________________________
+
+H = hamiltonian(Z, grid, Ne)
+
+np.savetxt("xyz.txt", grid.positions, fmt="%.6f", delimiter=" ", comments='')
+
+with open("dim.txt", "w") as file:
+    file.write(str(len(grid.positions)))
+
+if Ne == 2:
+    N = len(grid.positions)
+    ij_pairs = [(i, j) for i in range(1, N + 1) for j in range(1, N + 1)]
+    np.savetxt("tensor.txt", ij_pairs, fmt="%d", delimiter=" ", comments='')
+
+export_sparse_matrix_structure(H)
+
+# Initial guess
+if Ne == 2 and len(alpha) == 1 and Z == 2:
+    psi_guess = get_psi_correlated_He(grid.positions)
+
+elif Ne == 2 and len(alpha) == 2 and Z == 1:
+    R = np.linalg.norm(np.array(alpha[0]) - np.array(alpha[1]))
+    psi_guess = get_psi_correlated_H2(grid.positions, R)
+
+elif Ne == 1:
+    r = np.linalg.norm(grid.positions - np.array(alpha[0]), axis=1)
+    psi_guess = np.exp(-Z * r)
+
+else:
+    raise NotImplementedError("No default initial guess implemented for this system.")
+
+psi_guess /= np.linalg.norm(psi_guess)
+np.savetxt("psi_guess.txt", psi_guess, fmt="%.6f", delimiter=",", comments='')
+
+export_davidson_input(
+    grid=grid,
+    H=H,
+    psi_guess=psi_guess,
+    Ne=Ne,
+    output_dir=".",
+)
