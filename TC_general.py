@@ -104,7 +104,7 @@ plt.show()
 
 #_____________________________________________________Export for Davidson________________________________________
 
-H = hamiltonian(Z, grid, Ne)
+H = hamiltonian(Z, mu, grid, Ne)
 
 np.savetxt("xyz.txt", grid.positions, fmt="%.6f", delimiter=" ", comments='')
 
