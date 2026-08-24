@@ -3,8 +3,8 @@ from scipy import sparse as sparse
 from scipy import special as sp
 from scipy.spatial import distance
 from matplotlib import pyplot as plt
-from voronoif import voronoi_L_sym  # type: ignore
-from grid_generatorf import GridSetup  # type: ignore
+from voronoi import voronoi_L_sym  # type: ignore
+from grid_generator import GridSetup  # type: ignore
 from export_data_davidson import *
 from get_correlated_psi import *
 
