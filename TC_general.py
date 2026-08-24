@@ -96,9 +96,9 @@ print(eigenvalues[0])
 
 X = grid.x
 Y = grid.y
-Z = grid.z
-positions = np.stack([X, Y, Z], axis=-1)
-R = np.sqrt(X**2 + Y**2 + Z**2)
+Zcoord = grid.z
+positions = np.stack([X, Y, Zcoord], axis=-1)
+R = np.sqrt(X**2 + Y**2 + Zcoord**2)
 plt.plot(X, eigenvectors[:,0].real, linewidth=0, marker='o', markersize=1)
 plt.show()
 
